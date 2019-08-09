@@ -62,24 +62,9 @@ class TestGallery {
 
             document.querySelector(".da-modal > .da-inner > div > a").href = src;
 
+            // Set src and loading filter
             this.modalImage.src = src;
-
-            // Hide during loading
-            this.container.style.display = "none";
-            // Set container to max height to let image load to max height
-            this.container.style.height = this.container.style.maxHeight;
-            this.container.style.width  = this.container.style.maxWidth;
-
-            this.modalImage.onload = () => {
-                let compStyle = window.getComputedStyle(this.modalImage);
-
-                // Set container size relative to max image size calculated
-                this.container.style.width = compStyle.width;
-                this.container.style.height = "calc(" + compStyle.height + " + 30px)";
-
-                // Show container again
-                this.container.style.display = "inherit";
-            }
+            this.modalImage.style.filter = "grayscale(90%) blur(3px)";
         }
     }
 
@@ -158,7 +143,7 @@ class TestGallery {
                 // Opposite => it was just closed
                 else if (!this.modalImage && openBefore)
                     this.onModalImageClose();
-            }, 200);
+            }, 250);
         }
     }
 
@@ -186,16 +171,23 @@ class TestGallery {
         // Add it to the dom
         document.querySelector(".da-modal > .da-inner > div").appendChild(parent);
 
-        // Max dimensions
-        this.container.style.maxHeight = "90vh";
-        this.container.style.maxWidth = "80vw";
-
-        // Account for the link and count
-        this.imgWrapper.style.maxHeight = "calc(100% - 30px)";
-        this.imgWrapper.style.maxWidth = "100%";
-
-        this.modalImage.style.maxHeight = this.modalImage.style.maxWidth = "100%";
+        // Max size
+        this.modalImage.style.maxHeight = "calc(90vh - 30px)";
+        this.modalImage.style.maxWidth = "80vw";
         this.modalImage.style.height = this.modalImage.style.width = "auto";
+
+        // Event listener for image loading
+        this.modalImage.onload = () => {
+            let compStyle = window.getComputedStyle(this.modalImage);
+
+            // Set container size relative to max image size calculated
+            this.imgWrapper.style.width = this.container.style.width = compStyle.width;
+            this.imgWrapper.style.height = compStyle.height;
+            this.container.style.height = "calc(" + compStyle.height + " + 30px)";
+
+            // Show container again
+            this.modalImage.style.filter = "";
+        }
 
         // Load images, and show counts
         await this.loadImages();

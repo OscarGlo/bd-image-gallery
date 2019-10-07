@@ -10,11 +10,15 @@ class TestGallery {
     }
 
     getVersion() {
-        return "0.0.1";
+        return "0.0.2";
     }
 
     getAuthor() {
         return "PopahGlo#3995";
+    }
+
+    get modal() {
+        return document.querySelector(".da-modal");
     }
 
     get container() {
@@ -56,14 +60,13 @@ class TestGallery {
                 return;
             } else return;
 
-            // Update src of modal image
-            let img = this.images[this.i],
-                src = img.src.substring(0, img.src.lastIndexOf("?"));
+            // Update src of modal image and a
+            let img = this.images[this.i];
 
-            document.querySelector(".da-modal > .da-inner > div > a").href = src;
+            document.querySelector(".da-modal > .da-inner > div > a").href = img;
 
             // Set src and loading filter
-            this.modalImage.src = src;
+            this.modalImage.src = img;
             this.modalImage.style.filter = "grayscale(90%) blur(3px)";
         }
     }
@@ -74,13 +77,14 @@ class TestGallery {
 
     getImages() {
         // Get sent images (direct + embed image fields) as array (thanks es6)
-        return [...document.querySelectorAll(".da-imageWrapper[href]:not([href='']) > img")];
+        return [...document.querySelectorAll(".da-imageWrapper[href]:not([href='']) > img")]
+            .map(img => img.src.substring(0, img.src.lastIndexOf("?")));
     }
 
     calculateIndex() {
         let src = this.modalImage.src;
         for (let i in this.images) {
-            if (this.images[i].src.startsWith(src)) {
+            if (this.images[i].startsWith(src)) {
                 this.i = i;
                 return;
             }
@@ -108,10 +112,10 @@ class TestGallery {
                     let newImgs = this.getImages().reverse();
                     // Add new images in order at the end
                     let added = false
-                    for (let img of newImgs) {
-                        if (this.images.filter(img2 => img2.src === img.src).length === 0) {
+                    for (let src of newImgs) {
+                        if (!this.images.includes(src)) {
                             added = true;
-                            this.images.push(img);
+                            this.images.push(src);
                         }
                     }
 
@@ -134,16 +138,23 @@ class TestGallery {
     onMouseDown(evt) {
         if (evt.button === 0) {
             // Is modal open before timeout
-            let openBefore = !!this.modalImage;
+            let openBefore = !!this.modal;
 
             setTimeout(() => {
                 // If modal is open now => it was just opened
-                if (this.modalImage && !openBefore)
-                    this.onModalImageOpen();
+                if (this.modal && !openBefore) {
+                	// Wait for the image placeholder to be gone
+                	let checkPlaceholder = setInterval(() => {
+                		if (!document.querySelector(".da-imagePlaceholderOverlay")) {
+                    		this.onModalImageOpen();
+                    		clearInterval(checkPlaceholder);
+                		}
+                	}, 50);
+                }
                 // Opposite => it was just closed
-                else if (!this.modalImage && openBefore)
+                else if (!this.modal && openBefore)
                     this.onModalImageClose();
-            }, 250);
+            }, 100);
         }
     }
 
@@ -204,7 +215,7 @@ class TestGallery {
 
     start() {
         if (!global.ZeresPluginLibrary) return window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
-        ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "LINK_TO_RAW_CODE");
+        ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/OscarGlo/bd-image-gallery/master/TestGallery.plugin.js");
 
         this.kdListener = evt => this.onKeyDown(evt);
         this.mdListener = evt => this.onMouseDown(evt);

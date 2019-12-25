@@ -62,7 +62,6 @@ class TestGallery {
 
             // Update src of modal image and a
             let img = this.images[this.i];
-
             document.querySelector(".da-modal > .da-inner > a").href = img;
 
             // Set src and loading filter

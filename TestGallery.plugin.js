@@ -10,7 +10,7 @@ class TestGallery {
     }
 
     getVersion() {
-        return "0.0.3";
+        return "0.0.4";
     }
 
     getAuthor() {
@@ -145,8 +145,7 @@ class TestGallery {
                 	// Wait for the image placeholder to be gone
                 	let checkPlaceholder = setInterval(() => {
                 		if (!document.querySelector(".da-imagePlaceholderOverlay")) {
-                            if (images.length > 0)
-                    		  this.onModalImageOpen();
+                    		this.onModalImageOpen();
                     		clearInterval(checkPlaceholder);
                 		}
                 	}, 50);
@@ -176,6 +175,11 @@ class TestGallery {
         parent.style.lineHeight = "20px";
 
         let src = this.modalImage.src;
+
+        // Ignore image if avatar (compatibility with AvatarIconViewer)
+        if (src.startsWith("https://cdn.discordapp.com/avatars/"))
+            return;
+
         this.modalImage.src = src.substring(0, src.lastIndexOf("?"))
 
         // Add it to the dom
@@ -191,8 +195,11 @@ class TestGallery {
             let compStyle = window.getComputedStyle(this.modalImage);
 
             // Set container size relative to max image size calculated
-            this.imgWrapper.style.width = this.container.style.width = compStyle.width;
+            this.imgWrapper.style.width = compStyle.width;
             this.imgWrapper.style.height = compStyle.height;
+            // Container min width (compatibility with ImageToClipboard)
+            this.container.style.width = "max(" + compStyle.width + ", 200px)";
+            // Container margin for options
             this.container.style.height = "calc(" + compStyle.height + " + 50px)";
 
             // Show container again

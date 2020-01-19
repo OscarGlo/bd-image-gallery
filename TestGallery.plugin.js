@@ -10,7 +10,7 @@ class TestGallery {
     }
 
     getVersion() {
-        return "0.0.4";
+        return "0.0.5";
     }
 
     getAuthor() {
@@ -62,7 +62,7 @@ class TestGallery {
 
             // Update src of modal image and a
             let img = this.images[this.i];
-            document.querySelector(".da-modal > .da-inner > a").href = img;
+            document.querySelector(".da-modal > .da-inner a").href = img;
 
             // Set src and loading filter
             this.modalImage.src = img;
@@ -176,8 +176,8 @@ class TestGallery {
 
         let src = this.modalImage.src;
 
-        // Ignore image if avatar (compatibility with AvatarIconViewer)
-        if (src.startsWith("https://cdn.discordapp.com/avatars/"))
+        // Ignore image if avatar, emoji or icon (compatibility with AvatarIconViewer)
+        if (src.match(/https:\/\/cdn\.discordapp\.com\/(icon|avatar|emoji)s\//g))
             return;
 
         this.modalImage.src = src.substring(0, src.lastIndexOf("?"))
